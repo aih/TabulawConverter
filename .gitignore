@@ -1,0 +1,4 @@
+*.class
+*.war
+/test-output
+/target
