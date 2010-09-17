@@ -6,14 +6,14 @@
   <display-name>Archetype Created Web Application</display-name>
 
 <servlet>
-<servlet-name>testservlet</servlet-name>
-<servlet-class>com.tabulaw.server.TestServlet</servlet-class>
+<servlet-name>documentconverter</servlet-name>
+<servlet-class>com.tabulaw.server.DocumentConverter</servlet-class>
 <load-on-startup>1</load-on-startup>
 </servlet>
 
 <servlet-mapping>
-<servlet-name>testservlet</servlet-name>
-<url-pattern>/test/*</url-pattern>
+<servlet-name>documentconverter</servlet-name>
+<url-pattern>/converter.html</url-pattern>
 </servlet-mapping>
 
 </web-app>

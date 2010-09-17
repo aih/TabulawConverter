@@ -19,10 +19,39 @@
 	  <artifactId>servlet-api</artifactId>
 	  <version>2.5</version>
     </dependency>
+	<dependency>
+	  <groupId>com.aspose</groupId>
+	  <artifactId>aspose.words</artifactId>
+	  <version>3.3</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+		<version>2.5</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<version>1.4</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-fileupload</groupId>
+		<artifactId>commons-fileupload</artifactId>
+		<version>1.2.1</version>
+	</dependency>
   </dependencies>
   <build>
     <finalName>converter</finalName>
          <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
          </plugins>
   </build>
 </project>
