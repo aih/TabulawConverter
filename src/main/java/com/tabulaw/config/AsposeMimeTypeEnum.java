@@ -28,7 +28,6 @@ public enum AsposeMimeTypeEnum {
 
 	private int inputFormatId;
 	private int outputFormatId;
-	private String outputFileExtension;
 
 	static {
 		outputFormats = new HashMap<String, Integer>();

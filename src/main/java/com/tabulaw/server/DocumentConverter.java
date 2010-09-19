@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.aspose.words.Document;
 import com.tabulaw.config.AsposeMimeTypeEnum;
+import com.tabulaw.server.processor.Processor;
 
 @SuppressWarnings("serial")
 public class DocumentConverter extends HttpServlet {
@@ -28,13 +29,56 @@ public class DocumentConverter extends HttpServlet {
 	private static final String OUT_FORMAT_PARAM_NAME = "accept-type";
 	private static final String TMP_DIR_PATH = ".";
 	private File tmpDir;
+	private Processor processor;
 
+	private FileItem getFileItem(List<FileItem> items) throws ServletException {
+		for (FileItem item : items) {
+			if (!item.isFormField()) {
+
+				String filename = item.getName();
+				if (StringUtils.isEmpty(filename)) {
+					continue;
+				}
+
+				String sourceMimeType = item.getContentType();
+
+				if (sourceMimeType == null) {
+					throw new ServletException("Unknown content type of uploaded file: " + filename);
+				}
+
+				return item; // sending back multiple documents doesn't
+				// supported yet
+
+			}
+		}
+		return null;
+	}
+
+	private void write(String filename, String dstMimeType, ByteArrayOutputStream output, HttpServletResponse response)
+			throws Exception {
+
+		filename = FilenameUtils.getBaseName(filename);
+
+		response.setContentType(dstMimeType);
+		filename = URLEncoder.encode(filename, "UTF-8");
+		String attachmentHeader = String.format("attachment; filename=%s.%s", filename, AsposeMimeTypeEnum
+				.getOutputExtension(dstMimeType));
+		response.setHeader("Content-disposition", attachmentHeader);
+
+		output.writeTo(response.getOutputStream());
+
+		response.setStatus(HttpServletResponse.SC_CREATED);
+		response.flushBuffer();
+
+	}
+	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		tmpDir = new File(TMP_DIR_PATH);
 		if (!tmpDir.isDirectory()) {
 			throw new ServletException(TMP_DIR_PATH + " is not a directory");
 		}
+		processor = new Processor();  
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,8 +100,7 @@ public class DocumentConverter extends HttpServlet {
 		try {
 			List<FileItem> items = upload.parseRequest(request);
 
-			// trying to read mime-type from headers first and then from
-			// parameters
+			// trying to read mime type from headers first and then from parameters
 			String dstMimeType = request.getHeader(OUT_FORMAT_PARAM_NAME);
 			if (StringUtils.isEmpty(dstMimeType)) {
 				for (FileItem item : items) {
@@ -66,45 +109,23 @@ public class DocumentConverter extends HttpServlet {
 					}
 				}
 			}
+			FileItem item = getFileItem(items);
+			String filename = item.getName();
+			String sourceMimeType = item.getContentType();
 
-			for (FileItem item : items) {
-				if (!item.isFormField()) {
+			int srcDocFormat = AsposeMimeTypeEnum.getAsposeInputFormatForMimeType(sourceMimeType);
 
-					String filename = item.getName();
-					if (StringUtils.isEmpty(filename)) {
-						continue;
-					}
+			InputStream inputStream = processor.preProcessInputStream(srcDocFormat, item.getInputStream());
 
-					InputStream is = item.getInputStream();
+			Document asposeDoc = new Document(inputStream, null, srcDocFormat, null);
 
-					String sourceMimeType = item.getContentType();
+			int dstDocFormat = AsposeMimeTypeEnum.getAsposeOutputFormatForMimeType(dstMimeType);
 
-					if (sourceMimeType == null) {
-						throw new ServletException("Unknown content type of uploaded file: " + filename);
-					}
-					int docFormat = AsposeMimeTypeEnum.getAsposeInputFormatForMimeType(sourceMimeType);
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			asposeDoc.save(output, dstDocFormat);
 
-					Document asposeDoc = new Document(is, null, docFormat, null);
-					filename = FilenameUtils.getBaseName(filename);
+			write(filename, dstMimeType, output, response);
 
-					docFormat = AsposeMimeTypeEnum.getAsposeOutputFormatForMimeType(dstMimeType);
-
-					ByteArrayOutputStream output = new ByteArrayOutputStream();
-					asposeDoc.save(output, docFormat);
-					response.setContentType(dstMimeType);
-					filename = URLEncoder.encode(filename, "UTF-8");
-					String attachmentHeader = String.format("attachment; filename=%s.%s", filename, AsposeMimeTypeEnum.getOutputExtension(dstMimeType));
-					response.setHeader("Content-disposition", attachmentHeader);
-					output.writeTo(response.getOutputStream());
-
-					break; // sending back multiple documents doesn't supported
-							// yet
-
-				}
-			}
-
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			response.flushBuffer();
 		} catch (ClientAbortException cae) {
 			// TODO Add log entry, do not send anything to response
 		} catch (Exception e) {
@@ -113,4 +134,5 @@ public class DocumentConverter extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, emsg);
 		}
 	}
+
 }
