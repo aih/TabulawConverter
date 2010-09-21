@@ -21,11 +21,6 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-	  <groupId>javax.servlet</groupId>
-	  <artifactId>servlet-api</artifactId>
-	  <version>2.5</version>
-    </dependency>
 	<dependency>
 	  <groupId>com.aspose</groupId>
 	  <artifactId>aspose.words</artifactId>
@@ -69,6 +64,11 @@
 		<groupId>htmlcleaner</groupId>
 		<artifactId>htmlcleaner</artifactId>
 		<version>2.1</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.tomcat</groupId>
+	    <artifactId>catalina</artifactId>
+	    <version>6.0.26</version>
 	</dependency>
   </dependencies>
   <build>
