@@ -1,3 +1,41 @@
+***Specification***
+Supported formats:
+- Microsoft Word (*.doc)
+- Microsoft Word XML (*.docx)
+- HTML 
+- Rich Text Format (rtf)
+- ODT
+
+Request parameters
+Request to convert files must go to following url:
+http://<your server>/<your deploy folder>/converter.html
+- source format can be set though standart mime type request header
+- target format can be specified either by request header 'accept-type' or by string item in multipart request with the same name.
+
+multipart response
+Current implementation has limited support for multipart responses. It read  first file item and then start conversion process. 
+If there are requirements to handle multiple files in one request response sequence this behaviour can be changed.
+ 
+***Installation***
 1. to build run mvn package
 2. html page for testing the converter:
-http://localhost:8080/Tabulaw-converter/submitform.html
+http://localhost:8080/<application folder>/submitform.html
+
+**Converter configuration***
+Converter configuration stored in two files:
+/converter/WEB-INF/classes/com/tabulaw/config/input.mimetypes.properties
+/converter/WEB-INF/classes/com/tabulaw/config/output.mimetypes.properties 
+
+initial config for both files is same:
+doc=application/msword;application/vnd.ms-word
+docx=application/vnd.openxmlformats-officedocument.wordprocessingml.document
+rtf=text/rtf
+html=text/html
+
+***Tabulaw app configuration***
+There is one option that must be correctly configured to use Tabulaw application with converter:
+converter.url=http://localhost:8080/Tabulaw-converter/converter.html
+
+
+
+
