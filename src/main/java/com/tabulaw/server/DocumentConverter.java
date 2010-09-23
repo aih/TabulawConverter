@@ -3,7 +3,6 @@ package com.tabulaw.server;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.net.URLEncoder;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -60,8 +59,7 @@ public class DocumentConverter extends HttpServlet {
 		filename = FilenameUtils.getBaseName(filename);
 
 		response.setContentType(dstMimeType);
-		filename = URLEncoder.encode(filename, "UTF-8");
-		String attachmentHeader = String.format("attachment; filename=%s.%s", filename, AsposeMimeTypeEnum
+		String attachmentHeader = String.format("attachment; filename =\"%s.%s\"", filename, AsposeMimeTypeEnum
 				.getOutputExtension(dstMimeType));
 		response.setHeader("Content-disposition", attachmentHeader);
 
